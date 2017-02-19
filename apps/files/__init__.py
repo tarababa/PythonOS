@@ -88,7 +88,7 @@ class ApplicationSupport(object):
     
     def getSuitableApps(self, ftype):
         suitable = []
-        for app, data in self.applications.iteritems():
+        for app, data in self.applications.items():
             if ftype in data or ftype.lower() in data:
                 suitable.append(app)
         return suitable
@@ -106,7 +106,7 @@ class ApplicationSupport(object):
         
     def setCurrentSelection(self, name):
         try:
-            self.currentlySelected = [app for app in self.applications.keys() if app.name == name][0]
+            self.currentlySelected = [app for app in list(self.applications.keys()) if app.name == name][0]
         except:
             self.currentlySelected = None
             
@@ -219,17 +219,17 @@ class FileExplorer(pyos.GUI.Container):
         self.buttonBar = pyos.GUI.ButtonRow((0, 0), width=self.computedWidth, height=40, color=state.getColorPalette().getColor("background"),
                                             border=1, borderColor=state.getColorPalette().getColor("item"),
                                             padding=0, margin=0)
-        up = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("up"), width=40, height=40,
+        up = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("up"), width=40, height=40,
                             onClick=self.navUp)
-        home = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("home_dir"), width=40, height=40,
+        home = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("home_dir"), width=40, height=40,
                             onClick=self.navHome)
-        goto = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("goto"), width=40, height=40,
+        goto = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("goto"), width=40, height=40,
                             onClick=self.navAsk, onLongClick=self.displayLocationDialog)
-        self.copyBtn = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("copy"), width=40, height=40,
+        self.copyBtn = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("copy"), width=40, height=40,
                             onClick=self.copy, onLongClick=self.clearCopy)
-        self.moveBtn = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("move"), width=40, height=40,
+        self.moveBtn = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("move"), width=40, height=40,
                             onClick=self.move, onLongClick=self.clearMove)
-        delete = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("delete"), width=40, height=40,
+        delete = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("delete"), width=40, height=40,
                             onClick=self.deleteAsk)
         self.buttonBar.addChild(up)
         self.buttonBar.addChild(home)
@@ -369,13 +369,13 @@ class PickerExplorer(FileExplorer):
         self.buttonBar = pyos.GUI.ButtonRow((0, 0), width=self.computedWidth, height=40, color=state.getColorPalette().getColor("background"),
                                             border=1, borderColor=state.getColorPalette().getColor("item"),
                                             padding=0, margin=0)
-        up = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("up"), width=40, height=40,
+        up = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("up"), width=40, height=40,
                             onClick=self.navUp)
-        home = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("home_dir"), width=40, height=40,
+        home = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("home_dir"), width=40, height=40,
                             onClick=self.navHome)
-        goto = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("goto"), width=40, height=40,
+        goto = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("goto"), width=40, height=40,
                             onClick=self.navAsk, onLongClick=self.displayLocationDialog)
-        self.selectBtn = pyos.GUI.Image((0,0), surface=state.getIcons().getLoadedIcon("select"), width=40, height=40,
+        self.selectBtn = pyos.GUI.Image((0, 0), surface=state.getIcons().getLoadedIcon("select"), width=40, height=40,
                             onClick=self.selectDir)
 
         self.buttonBar.addChild(up)

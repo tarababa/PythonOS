@@ -56,6 +56,6 @@ class Editor(object):
     def open(self, path):
         self.path = path
         ro = open(self.path, "rU")
-        self.textField.setText(str(unicode(ro.read(), errors="ignore")))
+        self.textField.setText(ro.read())
         ro.close()
         self.fnText.setText(path[max(path.rfind("/"), path.rfind("\\"))+1:])

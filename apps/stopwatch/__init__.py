@@ -11,7 +11,7 @@ def onResume():
     
 class Lap(pyos.GUI.Container):
     def __init__(self, watch, mins, secs, hundredths):
-        super(Lap, self).__init__((0, 0), color=state.getColorPalette().getColor("background"), border=1, borderColor=(200,200,200),
+        super(Lap, self).__init__((0, 0), color=state.getColorPalette().getColor("background"), border=1, borderColor=(200, 200, 200),
                                   width=watch.lapContainer.container.width, height=40)
         self.timetext = pyos.GUI.Text((2, 8), str(mins).rjust(2, "0")+":"+str(secs).rjust(2, "0")+"."+str(hundredths)[:2], state.getColorPalette().getColor("item"), 24)
         self.removeBtn = pyos.GUI.Image((self.width-40, 0), surface=state.getIcons().getLoadedIcon("delete"),

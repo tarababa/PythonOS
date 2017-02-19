@@ -1,10 +1,12 @@
 import pyos
 
+
 def onStart(s, a):
     tmapp = s.getApplicationList().getApp("task-manager")
     ssapp = s.getApplicationList().getApp("state-shell")
     sinf = open("res/system.json", "rU")
-    inf = pyos.json.loads(str(unicode(sinf.read(), errors="ignore")))
+    #inf = pyos.json.loads(str(str(sinf.read(), errors="ignore")))
+    inf = pyos.json.loads(sinf.read())    
     sinf.close()
     text = pyos.GUI.MultiLineText((0, 0), """{}, version {}.
 Designed and programmed as an open source project by Adam Furman.

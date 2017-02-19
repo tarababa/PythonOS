@@ -1,6 +1,6 @@
 import pyos
-import urllib2
-from urllib import urlretrieve
+import urllib.request, urllib.error, urllib.parse
+from urllib.request import urlretrieve
 from apps.pman.fuzzywuzzy import fuzz
 from datetime import timedelta
 
@@ -41,9 +41,9 @@ def onStart(s, a):
 
 def internet_on():
     try:
-        urllib2.urlopen('http://www.google.com/', timeout=5)
+        urllib.request.urlopen('http://www.google.com/', timeout=5)
         return True
-    except urllib2.URLError: pass
+    except urllib.error.URLError: pass
     return False
 
 def fetchJSON(url):
@@ -52,8 +52,8 @@ def fetchJSON(url):
         if pyos.os.path.exists(url):
             resource = open(url, "rU")
         else:
-            resource = urllib2.urlopen(url)
-        text = str(unicode(resource.read(), errors="ignore"))
+            resource = urllib.request.urlopen(url)
+        text = str(str(resource.read(), errors="ignore"))
         resource.close()
         return pyos.json.loads(text)
     except:
@@ -62,7 +62,7 @@ def fetchJSON(url):
 def readJSON(path):
     try:
         f = open(path, "rU")
-        jsd = pyos.json.loads(str(unicode(f.read(), errors="ignore")))
+        jsd = pyos.json.loads(str(str(f.read(), errors="ignore")))
         f.close()
         return jsd
     except:
@@ -100,11 +100,11 @@ class ProgressDialog(pyos.GUI.Overlay):
         
 class AppIcon(pyos.GUI.Image):
     def __init__(self, position, appname, w=40, h=40, **data):
-        if appname in state.getApplicationList().applications.values():
+        if appname in list(state.getApplicationList().applications.values()):
             super(AppIcon, self).__init__(position, surface=state.getApplicationList().getApp(appname).getIcon(), width=w, height=h, **data)
         else:
             icn = cache.get(appname).get("more", {}).get("icon", "unknown")
-            if icn in state.getIcons().icons.values():
+            if icn in list(state.getIcons().icons.values()):
                 super(AppIcon, self).__init__(position, path="res/icons/"+icn, width=w, height=h, **data)
             else:                    
                 if pyos.os.path.exists("temp/pman_"+appname+"_icon.png") or download(cache.get(appname)["remotePath"]+"icon.png", "temp/pman_"+appname+"_icon.png"):
@@ -120,7 +120,7 @@ class AppActionButton(pyos.GUI.Button):
         self.refresh()
         
     def refresh(self):
-        if self.app in state.getApplicationList().applications.keys():
+        if self.app in list(state.getApplicationList().applications.keys()):
             self.backgroundColor = (200, 250, 200)
             if float(cache.get(self.app).get("version", 0.0)) > state.getApplicationList().getApp(self.app).version:
                 self.setOnClick(Installer(self.app).start)
@@ -224,7 +224,7 @@ class AppScreen(Screen):
         self.addChild(pyos.GUI.Button((40, self.height-40), "More by "+self.data.get("author"),
                                       state.getColorPalette().getColor("dark:background"), width=app.ui.width-40, height=40,
                                       onClick=AppListScreen.ondemand,
-                                      onClickData=([a for a in cache.data.keys() if cache.get(a).get("author") == self.data.get("author")],)))
+                                      onClickData=([a for a in list(cache.data.keys()) if cache.get(a).get("author") == self.data.get("author")],)))
         
 class UpdateScreen(Screen):
     def __init__(self):
@@ -313,14 +313,14 @@ class SearchScreen(Screen):
         txt = pyos.GUI.Text((0, 0), "Loading...")
         self.scroller.addChild(txt)
         results = {}
-        for a in cache.data.keys():
+        for a in list(cache.data.keys()):
             r = fuzz.ratio(self.query, a)
             r += fuzz.ratio(self.query, cache.get(a).get("title").lower())
             r += fuzz.token_sort_ratio(self.query, cache.get(a).get("description", "").lower())
             ar = fuzz.ratio(self.query, cache.get(a).get("author", "").lower())
             if r >110 or ar > 60:
                 results[a] = r+ar
-        for ra in sorted(results.keys(), key=lambda x: results[x], reverse=True):
+        for ra in sorted(list(results.keys()), key=lambda x: results[x], reverse=True):
             self.scroller.addChild(self.sizesel.getEntry(ra, AppScreen(ra).activate, self.scroller.container))
         self.scroller.removeChild(txt)
         
@@ -366,7 +366,7 @@ class MainScreen(Screen):
             self.addChild(pyos.GUI.Button((0, self.height-120), "Updates", (255, 187, 59), width=self.width/2, height=40,
                                           onClick=UpdateScreen.ondemand))
             self.addChild(pyos.GUI.Button((self.width/2, self.height-120), "All Apps", (148, 143, 133), width=self.width/2, height=40,
-                                          onClick=AppListScreen.ondemand, onClickData=(cache.data.keys(),)))
+                                          onClick=AppListScreen.ondemand, onClickData=(list(cache.data.keys()),)))
             self.searchBar = pyos.GUI.TextEntryField((0, self.height-160), "", width=self.width-40, height=40)
             self.addChild(pyos.GUI.Image((self.width-40, self.height-160), surface=state.getIcons().getLoadedIcon("search"),
                                          onClick=self.search))
@@ -391,7 +391,7 @@ class Cache(pyos.DataStore):
         self.data = {}
         
     def setPrgInfo(self, txt):
-        print txt
+        print(txt)
         self.progressInfo = txt
         if self.dialog != None:
             self.dialog.update(txt)
@@ -421,7 +421,7 @@ class Cache(pyos.DataStore):
                         self.set(rapp, aman)
                 finf = rman.get("featured", None)
                 if finf != None:
-                    if isinstance(finf, basestring):
+                    if isinstance(finf, str):
                         self.featured.append(rman["featured"])
                     else:
                         for f in rman["featured"]: self.featured.append(f)
@@ -479,10 +479,10 @@ class Installer(object):
     @staticmethod
     def getDependencies(appname):
         deps = cache.get(appname).get("pman", {}).get("depends", [])
-        print appname + " depends on " + str(deps)
+        print(appname + " depends on " + str(deps))
         for d in deps:
             if d == appname:
-                print "Warning: The app "+appname+" depends on itself."
+                print("Warning: The app "+appname+" depends on itself.")
                 deps.remove(d)
                 continue
             sd = cache.get(d).get("pman", {}).get("depends", [])
@@ -503,7 +503,7 @@ class Installer(object):
         post_install = []
         for tia in toinst:
             if not self.local and tia in state.getApplicationList().getApplicationNames() and cache.get(tia).get("version") <= state.getApplicationList().getApp(tia).version:
-                print tia + " is already installed at the newest version."
+                print(tia + " is already installed at the newest version.")
                 toinst.remove(tia)
                 continue
             if cache.get(tia).get("pman", {}).get("min_os", 0.0) > pman.sysInf.get("version"):
@@ -513,7 +513,7 @@ class Installer(object):
             if pim != None:
                 post_install.append([tia, pim])
         if toinst == []:
-            print self.name+" and all its dependencies are already installed."
+            print(self.name+" and all its dependencies are already installed.")
             return
         self.dialog.update("The following packages will be installed:")
         for p in toinst:
@@ -577,8 +577,8 @@ class PackageManager(object):
     def checkDBFresh(self):
         lupd = app.dataStore.get("lastUpdate", None)
         try:
-            if len(cache.getStore().keys()) <= 1:
-                print "Empty Cache"
+            if len(list(cache.getStore().keys())) <= 1:
+                print("Empty Cache")
                 app.dataStore.set("featured", [])
                 raise AttributeError
         except:

@@ -25,13 +25,13 @@ class Calculator(object):
         
         l_paren = pyos.GUI.Button((40, 240), "(", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=("(",),
-                                          border=1, borderColor=(20,20,20))
+                                          border=1, borderColor=(20, 20, 20))
         r_paren = pyos.GUI.Button((120, 240), ")", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(")",),
-                                          border=1, borderColor=(20,20,20))
+                                          border=1, borderColor=(20, 20, 20))
         ansbtn = pyos.GUI.Button((80, 240), "ans", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=("ans",),
-                                          border=1, borderColor=(20,20,20))
+                                          border=1, borderColor=(20, 20, 20))
         
         app.ui.addChild(l_paren)
         app.ui.addChild(r_paren)
@@ -70,14 +70,17 @@ class Calculator(object):
         
     def evaluate(self):
         try:
-            curr_ans = self.ansField.text
-            bestans = curr_ans
-            if self.ansField.text.find(".") != -1:
-                bestans = float(curr_ans)
-            else:
-                bestans = int(curr_ans)
-            self.compField.text = eval(self.input, {"sqrt": sqrt, "nrt": nrt, "ans": bestans, "pi": math.pi})
-        except:
+            try:
+                curr_ans = self.ansField.text
+                bestans = curr_ans
+                if self.ansField.text.find(".") != -1:
+                    bestans = float(curr_ans)
+                else:
+                    bestans = int(curr_ans)
+            except:
+              bestans = ""                   
+            self.compField.text = str(eval(self.input, globals(), {"sqrt": sqrt, "nrt": nrt, "ans": bestans, "pi": math.pi}))           
+        except:        
             self.compField.text = "err"
         self.showingAns = True
         self.compField.refresh()
@@ -86,40 +89,40 @@ class Calculator(object):
         self.numBtns = []
         self.numBtns.append(pyos.GUI.Button((40, 80), "7", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(7,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((80, 80), "8", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(8,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((120, 80), "9", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(9,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((40, 120), "4", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(4,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((80, 120), "5", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(5,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((120, 120), "6", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(6,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((40, 160), "1", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(1,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((80, 160), "2", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(2,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((120, 160), "3", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(3,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((80, 200), "0", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(0,),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((40, 200), ",", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(",",),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         self.numBtns.append(pyos.GUI.Button((120, 200), ".", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 24,
                                           width=40, height=40, onClick=self.addInput, onClickData=(".",),
-                                          border=1, borderColor=(200,200,200)))
+                                          border=1, borderColor=(200, 200, 200)))
         for nb in self.numBtns:
             app.ui.addChild(nb)
             

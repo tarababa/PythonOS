@@ -7,8 +7,9 @@ def onStart(s, a):
     app.ui.clearChildren()
     Gallery()
     
-def aspect_scale(img, (bx, by)):
-    ix,iy = img.get_size()
+def aspect_scale(img, xxx_todo_changeme):
+    (bx, by) = xxx_todo_changeme
+    ix, iy = img.get_size()
     if ix > iy:
         scale_factor = bx/float(ix)
         sy = scale_factor * iy

@@ -13,18 +13,22 @@ except ImportError:
     pass
 import json
 import os
-import __builtin__
+import builtins
 from importlib import import_module
 from shutil import rmtree
 from zipfile import ZipFile
-from thread import start_new_thread
+from _thread import start_new_thread
 from datetime import datetime
-from __builtin__ import staticmethod
+from builtins import staticmethod
 from traceback import format_exc
 from copy import deepcopy
 
 #state = None
 screen = None
+
+import_module("apps.about")
+
+from apps.about import *
 
 settings = {}
 
@@ -40,8 +44,8 @@ def readFile(path):
 
 def readJSON(path, default={}):
     try:
-        f = open(path, "rU")
-        jsd = json.loads(str(unicode(f.read(), errors="ignore")))
+        f = open(path, "rU")    
+        jsd = json.loads(str(str(f.read())))        
         f.close()
         return jsd
     except:
@@ -68,13 +72,13 @@ class Thread(object):
     def execEvent(self, evtKey, *params):
         toExec = self.eventBindings.get(evtKey, Thread.__defaultEvtMethod)
         if toExec == None: return
-        if type(toExec) == list:
+        if isinstance(toExec, list):
             toExec[0](*toExec[1])
         else:
             toExec(*params);
         
     def setPause(self, state="toggle"):
-        if type(state) != bool:
+        if not isinstance(state, bool):
             self.pause = not self.pause
         else:
             self.pause = state
@@ -173,12 +177,12 @@ class Controller(object):
         
     def removeThread(self, thread):
         try:
-            if type(thread) == int:
+            if isinstance(thread, int):
                 self.threads.pop(thread)
             else:
                 self.threads.remove(thread)
         except:
-            print "Thread was not removed!"
+            print("Thread was not removed!")
             
     def stopAllThreads(self):
         for thread in self.threads:
@@ -222,7 +226,7 @@ class GUI(object):
         except:
             screen.blit(pygame.font.Font(None, 20).render("Loading Python OS 6...", 1, (200, 200, 200)), [5, 5])
         pygame.display.flip()
-        __builtin__.screen = screen
+        builtins.screen = screen
         globals()["screen"] = screen
         self.timer = pygame.time.Clock()
         pygame.display.set_caption("PyOS 6")
@@ -255,7 +259,7 @@ class GUI(object):
             if self.update_interval > 10:
                 self.update_interval -= 1
     
-    def displayStandbyText(self, text="Stand by...", size=20, color=(20,20,20), bgcolor=(100, 100, 200)):
+    def displayStandbyText(self, text="Stand by...", size=20, color=(20, 20, 20), bgcolor=(100, 100, 200)):
         pygame.draw.rect(screen, bgcolor, [0, ((state.getGUI().height - 40)/2) - size, state.getGUI().width, 2*size])
         screen.blit(state.getFont().get(size).render(text, 1, color), (5, ((state.getGUI().height - 40)/2) - size+(size/4)))
         pygame.display.flip()
@@ -341,7 +345,7 @@ class GUI(object):
             f = open(path, "rU")
             icondata = json.load(f)
             toreturn = GUI.Icons()
-            for key in dict(icondata).keys():
+            for key in list(dict(icondata).keys()):
                 toreturn.icons[key] = icondata.get(key)
             f.close()
             return toreturn
@@ -407,7 +411,7 @@ class GUI(object):
             f = open(path, "rU")
             colordata = json.load(f)
             toreturn = GUI.ColorPalette()
-            for key in dict(colordata).keys():
+            for key in list(dict(colordata).keys()):
                 toreturn.palette[key] = colordata.get(key)
             f.close()
             return toreturn
@@ -417,7 +421,7 @@ class GUI(object):
             colorstring = colorstring.strip()
             if colorstring[0] == '#': colorstring = colorstring[1:]
             if len(colorstring) != 6:
-                raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
+                raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
             r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
             r, g, b = [int(n, 16) for n in (r, g, b)]
             return (r, g, b)
@@ -548,14 +552,14 @@ class GUI(object):
                 return
             appc = state.getActiveApplication().ui
             #Compute Position
-            if type(self.position[0]) == str:
+            if isinstance(self.position[0], str):
                 self.computedPosition[0] = self._percentToPix(self.position[0], (state.getActiveApplication().ui.width/100.0))
             else:
                 if self.resizable:
                     self.computedPosition[0] = int(self.position[0] * appc.scaleX)
                 else:
                     self.computedPosition[0] = int(self.position[0])
-            if type(self.position[1]) == str:
+            if isinstance(self.position[1], str):
                 self.computedPosition[1] = self._percentToPix(self.position[1], (state.getActiveApplication().ui.height/100.0))
             else:
                 if self.resizable:
@@ -564,14 +568,14 @@ class GUI(object):
                     self.computedPosition[1] = int(self.position[1])
                     
             #Compute Width and Height
-            if type(self.width) == str:
+            if isinstance(self.width, str):
                 self.computedWidth = self._percentToPix(self.width, (state.getActiveApplication().ui.width/100.0))
             else:
                 if self.resizable:
                     self.computedWidth = int(self.width * appc.scaleX)
                 else:
                     self.computedWidth = int(self.width)
-            if type(self.height) == str:
+            if isinstance(self.height, str):
                 self.computedHeight = self._percentToPix(self.height, (state.getActiveApplication().ui.height/100.0))
             else:
                 if self.resizable:
@@ -831,7 +835,7 @@ class GUI(object):
             super(GUI.Text, self).render(largerSurface)
         
         def setText(self, text):
-            self.text = text if type(text) == str or type(text) == unicode else str(text)
+            self.text = text if isinstance(text, str) or isinstance(text, str) else str(text)
             self._originalText = self.text
             self.refresh()
             if self.responsive_width:
@@ -882,7 +886,7 @@ class GUI(object):
                     elif justification == 2:
                         surface.blit(tempsurface, (rect.width - tempsurface.get_width(), accumulated_height))
                     else:
-                        print "Invalid justification argument: " + str(justification)
+                        print("Invalid justification argument: " + str(justification))
                         err = 2
                 accumulated_height += font.size(line)[1]
             return (surface, err, final_lines)
@@ -894,7 +898,7 @@ class GUI(object):
             self.justification = justification
             self.color = color
             self.size = size
-            self.text = text if type(text) == str or type(text) == unicode else str(text)
+            self.text = text if isinstance(text, str) or isinstance(text, str) else str(text)
             self.textSurface = None
             self.font = data.get("font", state.getFont())
             self.use_freetype = data.get("freetype", False)
@@ -914,7 +918,7 @@ class GUI(object):
             self.surface.blit(self.textSurface, (0, 0))
             
         def setText(self, text):
-            self.text = text if type(text) == str or type(text) == unicode else str(text)
+            self.text = text if isinstance(text, str) or isinstance(text, str) else str(text)
             self.setDimensions()
             self.refresh()
             
@@ -1374,7 +1378,7 @@ class GUI(object):
                 self.addChild(child)
                 
         def removePage(self, page):
-            if type(page) == int:
+            if isinstance(page, int):
                 self.pages.pop(page)
             else:
                 self.pages.remove(page)
@@ -1398,7 +1402,7 @@ class GUI(object):
             super(GUI.GriddedPagedContainer, self).__init__(position, **data)
             
         def isPageFilled(self, number):
-            if type(number) == int:
+            if isinstance(number, int):
                 return len(self.pages[number].childComponents) == (self.rows * self.columns)
             else:
                 return len(number.childComponents) == (self.rows * self.columns)
@@ -1828,10 +1832,10 @@ class GUI(object):
             self.keyHeight = self.baseContainer.computedHeight / 4
             use_ft = state.getTypingFont().ft_support
             #if use_ft:
-            self.shift_sym = u"⇧"
-            self.enter_sym = u"⏎"
-            self.bkspc_sym = u"⌫"
-            self.delet_sym = u"⌦"
+            self.shift_sym = "⇧"
+            self.enter_sym = "⏎"
+            self.bkspc_sym = "⌫"
+            self.delet_sym = "⌦"
 #             else:
 #                 self.shift_sym = "sh"
 #                 self.enter_sym = "->"
@@ -1930,8 +1934,8 @@ class GUI(object):
         def __init__(self, position, **data):
             self.position = list(position)
             self.displayed = False
-            self.width = int(int(data.get("width").rstrip("%")) * (state.getActiveApplication().ui.width/100.0)) if type(data.get("width")) == str else data.get("width", state.getGUI().width)
-            self.height = int(int(data.get("height").rstrip("%")) * (state.getActiveApplication().ui.height/100.0)) if type(data.get("height")) == str else data.get("height", state.getGUI().height-40)
+            self.width = int(int(data.get("width").rstrip("%")) * (state.getActiveApplication().ui.width/100.0)) if isinstance(data.get("width"), str) else data.get("width", state.getGUI().width)
+            self.height = int(int(data.get("height").rstrip("%")) * (state.getActiveApplication().ui.height/100.0)) if isinstance(data.get("height"), str) else data.get("height", state.getGUI().height-40)
             self.color = data.get("color", state.getColorPalette().getColor("background"))
             self.baseContainer = GUI.Container((0, 0), width=state.getGUI().width, height=state.getActiveApplication().ui.height, color=(0, 0, 0, 0), onClick=self.hide)
             self.container = data.get("container", GUI.Container(self.position[:], width=self.width, height=self.height, color=self.color))
@@ -1963,7 +1967,7 @@ class GUI(object):
             self.title = title
             self.text = text
             self.response = None
-            self.buttonList = GUI.Dialog.getButtonList(actionButtons, self) if type(actionButtons[0]) == str else actionButtons
+            self.buttonList = GUI.Dialog.getButtonList(actionButtons, self) if isinstance(actionButtons[0], str) else actionButtons
             self.textComponent = GUI.MultiLineText((2, 2), self.text, state.getColorPalette().getColor("item"), 16, width=self.container.computedWidth-4, height=96)
             self.buttonRow = GUI.ButtonRow((0, 96), width=state.getGUI().width, height=40, color=(0, 0, 0, 0), padding=0, margin=0)
             for button in self.buttonList:
@@ -2003,46 +2007,46 @@ class GUI(object):
             
     class OKDialog(Dialog):
         def __init__(self, title, text, onResposeRecorded=None, onResponseRecordedData=()):
-            okbtn = GUI.Button((0,0), "OK", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            okbtn = GUI.Button((0, 0), "OK", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=state.getGUI().width, height=40, onClick=self.recordResponse, onClickData=("OK",))
             super(GUI.OKDialog, self).__init__(title, text, [okbtn], onResposeRecorded)
             
     class ErrorDialog(Dialog):
         def __init__(self, text, onResposeRecorded=None, onResponseRecordedData=()):
-            okbtn = GUI.Button((0,0), "Acknowledged", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            okbtn = GUI.Button((0, 0), "Acknowledged", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=state.getGUI().width, height=40, onClick=self.recordResponse, onClickData=("Acknowledged",))
             super(GUI.ErrorDialog, self).__init__("Error", text, [okbtn], onResposeRecorded)
             self.container.backgroundColor = state.getColorPalette().getColor("error")
             
     class WarningDialog(Dialog):
         def __init__(self, text, onResposeRecorded=None, onResponseRecordedData=()):
-            okbtn = GUI.Button((0,0), "OK", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            okbtn = GUI.Button((0, 0), "OK", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=state.getGUI().width, height=40, onClick=self.recordResponse, onClickData=("OK",))
             super(GUI.WarningDialog, self).__init__("Warning", text, [okbtn], onResposeRecorded)
             self.container.backgroundColor = state.getColorPalette().getColor("warning")
             
     class YNDialog(Dialog):
         def __init__(self, title, text, onResponseRecorded=None, onResponseRecordedData=()):
-            ybtn = GUI.Button((0,0), "Yes", (200, 250, 200), (50, 50, 50), 18,
+            ybtn = GUI.Button((0, 0), "Yes", (200, 250, 200), (50, 50, 50), 18,
                                width=(state.getGUI().width/2), height=40, onClick=self.recordResponse, onClickData=("Yes",))
-            nbtn = GUI.Button((0,0), "No", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            nbtn = GUI.Button((0, 0), "No", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=(state.getGUI().width/2), height=40, onClick=self.recordResponse, onClickData=("No",))
             super(GUI.YNDialog, self).__init__(title, text, [ybtn, nbtn], onResponseRecorded)
             self.onResponseRecordedData = onResponseRecordedData
             
     class OKCancelDialog(Dialog):
         def __init__(self, title, text, onResponseRecorded=None, onResponseRecordedData=()):
-            okbtn = GUI.Button((0,0), "OK", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 18,
+            okbtn = GUI.Button((0, 0), "OK", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 18,
                                width=state.getGUI().width/2, height=40, onClick=self.recordResponse, onClickData=("OK",))
-            cancbtn = GUI.Button((0,0), "Cancel", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            cancbtn = GUI.Button((0, 0), "Cancel", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=state.getGUI().width/2, height=40, onClick=self.recordResponse, onClickData=("Cancel",))
             super(GUI.OKCancelDialog, self).__init__(title, text, [okbtn, cancbtn], onResponseRecorded, onResponseRecordedData)
             
     class AskDialog(Dialog):
         def __init__(self, title, text, onResposeRecorded=None, onResponseRecordedData=()):
-            okbtn = GUI.Button((0,0), "OK", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 18,
+            okbtn = GUI.Button((0, 0), "OK", state.getColorPalette().getColor("background"), state.getColorPalette().getColor("item"), 18,
                                width=state.getGUI().width/2, height=40, onClick=self.returnRecordedResponse)
-            cancelbtn = GUI.Button((0,0), "Cancel", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
+            cancelbtn = GUI.Button((0, 0), "Cancel", state.getColorPalette().getColor("item"), state.getColorPalette().getColor("background"), 18,
                                width=state.getGUI().width/2, height=40, onClick=self.recordResponse, onClickData=("Cancel",))
             super(GUI.AskDialog, self).__init__(title, text, [okbtn, cancelbtn], onResposeRecorded, onResponseRecordedData)
             self.textComponent.computedHeight -= 20
@@ -2060,7 +2064,7 @@ class GUI(object):
             self.response = None
             self.baseContainer = GUI.Container((0, 0), width=state.getGUI().width, height=state.getActiveApplication().ui.height, color=(0, 0, 0, 0.5))
             self.container = customComponent
-            self.buttonList = GUI.Dialog.getButtonList(actionButtons, self) if type(actionButtons[0]) == str else actionButtons
+            self.buttonList = GUI.Dialog.getButtonList(actionButtons, self) if isinstance(actionButtons[0], str) else actionButtons
             self.buttonRow = GUI.ButtonRow((0, self.container.computedHeight-33), width=self.container.computedWidth, height=40, color=(0, 0, 0, 0), padding=btnPad, margin=btnMargin)
             for button in self.buttonList:
                 self.buttonRow.addChild(button)
@@ -2174,19 +2178,19 @@ class GUI(object):
             self.textColor = data.get("textColor", state.getColorPalette().getColor("item"))
             self.items = items
             self.currentItem = self.items[0]
-            self.textComponent = GUI.Text((0,0), self.currentItem, self.textColor, 14, onClick=self.showOverlay)
+            self.textComponent = GUI.Text((0, 0), self.currentItem, self.textColor, 14, onClick=self.showOverlay)
             self.textComponent.setPosition([2, GUI.getCenteredCoordinates(self.textComponent, self)[1]])
             self.addChild(self.textComponent)
             
         def showOverlay(self):
             self.overlay.display()
             
-        def generateItemSequence(self, items, size=22, color=(0,0,0)):
+        def generateItemSequence(self, items, size=22, color=(0, 0, 0)):
             comps = []
             acc_height = 0
             for item in items:
                 el_c = GUI.Container((0, acc_height), transparent=True, width=self.overlay.width, height=40,
-                                     onClick=self.onSelect, onClickData=(item,), border=1, borderColor=(20,20,20))
+                                     onClick=self.onSelect, onClickData=(item,), border=1, borderColor=(20, 20, 20))
                 elem = GUI.Text((2, 0), item, color, size,
                                 onClick=self.onSelect, onClickData=(item,))
                 elem.position[1] = GUI.getCenteredCoordinates(elem, el_c)[1]
@@ -2267,7 +2271,7 @@ class Application(object):
     def removeListing(location):
         alist = Application.getListings()
         try: del alist[location]
-        except: print "The application listing for " + location + " could not be removed."
+        except: print("The application listing for " + location + " could not be removed.")
         listingsfile = open("apps/apps.json", "w")
         json.dump(alist, listingsfile)
         listingsfile.close()
@@ -2278,10 +2282,10 @@ class Application(object):
         package.extract("app.json", "temp/")
         app_info = readJSON("temp/app.json")
         app_name = str(app_info.get("name"))
-        if app_name not in state.getApplicationList().applications.keys():
+        if app_name not in list(state.getApplicationList().applications.keys()):
             os.mkdir(os.path.join("apps/", app_name))
         else:
-            print "Upgrading "+app_name
+            print("Upgrading "+app_name)
         package.extractall(os.path.join("apps/", app_name))
         package.close()
         alist = Application.getListings()
@@ -2316,7 +2320,7 @@ class Application(object):
         self.title = str(app_data.get("title", self.name))
         self.version = float(app_data.get("version", 0.0))
         self.author = str(app_data.get("author", "No Author"))
-        self.module = import_module("apps." + str(app_data.get("module", self.name)), "apps")
+        self.module = import_module("apps." + str(app_data.get("module", self.name))) 
         self.module.state = state
         self.file = None
         try:
@@ -2412,7 +2416,7 @@ class ApplicationList(object):
         self.applications = {}
         self.activeApplications = []
         applist = Application.getListings()
-        for key in dict(applist).keys():
+        for key in list(dict(applist).keys()):
             try:
                 self.applications[applist.get(key)] = Application(key)
             except:
@@ -2425,10 +2429,10 @@ class ApplicationList(object):
             return None
         
     def getApplicationList(self):
-        return self.applications.values()
+        return list(self.applications.values())
     
     def getApplicationNames(self):
-        return self.applications.keys()
+        return list(self.applications.keys())
         
     def pushActiveApp(self, app):
         if app not in self.activeApplications:
@@ -2456,14 +2460,14 @@ class ApplicationList(object):
         
     def reloadList(self):
         applist = Application.getListings()
-        for key in dict(applist).keys():
+        for key in list(dict(applist).keys()):
             try:
-                if (applist.get(key) not in self.applications.keys()) and not state.getActiveApplication().name == key:
+                if (applist.get(key) not in list(self.applications.keys())) and not state.getActiveApplication().name == key:
                     self.applications[applist.get(key)] = Application(key)
             except:
                 State.error_recovery("App init error: "+key, "NoAppDump")
-        for key in self.applications.keys():
-            if key not in applist.values():
+        for key in list(self.applications.keys()):
+            if key not in list(applist.values()):
                 del self.applications[key]
         
 class Notification(object):
@@ -2544,7 +2548,7 @@ class DataStore(object):
             json.dump({"dsApp": self.application.name}, wf)
             wf.close()
         rf = open(self.dsPath, "rU")
-        self.data = json.loads(str(unicode(rf.read(), errors="ignore")))
+        self.data = json.loads((rf.read()))
         rf.close()
         return self.data
     
@@ -2567,7 +2571,7 @@ class DataStore(object):
         self.set(key, val)
                 
 class State(object):                  
-    def __init__(self, activeApp=None, colors=None, icons=None, controller=None, eventQueue=None, notificationQueue=None, functionbar=None, font=None, tFont=None, gui=None, appList=None, keyboard=None):
+    def __init__(self, activeApp=None, colors=None, icons=None, controller=None, eventQueue=None, notificationQueue=None, functionbar=None, font=None, tFont=None, gui=None, appList=None, keyboard=None):   
         self.activeApplication = activeApp
         self.colorPalette = colors
         self.icons = icons
@@ -2636,7 +2640,7 @@ class State(object):
         rClock = pygame.time.Clock()
         state.getNotificationQueue().clear()
         state.getEventQueue().clear()
-        print "Recovery menu entered."
+        print("Recovery menu entered.")
         while True:
             rClock.tick(10)
             screen.fill([0, 0, 0])
@@ -2651,7 +2655,7 @@ class State(object):
             pygame.display.flip()
             for evt in pygame.event.get():
                 if evt.type == pygame.QUIT or evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
-                    print "Quit signal detected."
+                    print("Quit signal detected.")
                     try: state.exit()
                     except:
                         pygame.quit()
@@ -2660,35 +2664,35 @@ class State(object):
                     if evt.pos[1] >= 80:
                         if evt.pos[1] >= 160:
                             if evt.pos[1] >= 240:
-                                print "Exiting."
+                                print("Exiting.")
                                 try: state.exit()
                                 except:
                                     pygame.quit()
                                     exit()
                             else:
-                                print "Stopping current app"
+                                print("Stopping current app")
                                 try:
                                     Application.fullCloseCurrent()
                                 except:
-                                    print "Regular stop failed!"
+                                    print("Regular stop failed!")
                                     Application.setActiveApp(state.getApplicationList().getApp("home"))
                                 return
                         else:
-                            print "Closing all active applications"
+                            print("Closing all active applications")
                             for a in state.getApplicationList().activeApplications:
                                 try: a.deactivate()
                                 except:
-                                    print "The app "+str(a.name)+" failed to deactivate!"
+                                    print("The app "+str(a.name)+" failed to deactivate!")
                                     state.getApplicationList().activeApplications.remove(a)
                             state.getApplicationList().getApp("home").activate()
                             return
                     else:
-                        print "Returning to Python OS."
+                        print("Returning to Python OS.")
                         return
     
     @staticmethod       
     def error_recovery(message="Unknown", data=None):
-        print message
+        print(message)
         screen.fill([200, 100, 100])
         rf = pygame.font.Font(None, 24)
         sf = pygame.font.Font(None, 18)
@@ -2786,16 +2790,16 @@ class State(object):
     @staticmethod
     def state_shell():
         #For debugging purposes only. Do not use in actual code!
-        print "Python OS 6 State Shell. Type \"exit\" to quit."
-        user_input = raw_input ("S> ")
+        print("Python OS 6 State Shell. Type \"exit\" to quit.")
+        user_input = input ("S> ")
         while user_input != "exit":
             if not user_input.startswith("state.") and user_input.find("Static") == -1: 
                 if user_input.startswith("."):
                     user_input = "state" + user_input
                 else:
                     user_input = "state." + user_input
-            print eval(user_input, {"state": state, "Static": State})
-            user_input = raw_input("S> ")
+            print(eval(user_input, {"state": state, "Static": State}))
+            user_input = input("S> ")
         State.exit(True)
         
     
@@ -2803,18 +2807,18 @@ if __name__ == "__main__":
     try:
         settings = readJSON("res/settings.json")
     except:
-        print "Error loading settings from res/settings.json"
+        print("Error loading settings from res/settings.json")
     state = State()
     globals()["state"] = state
-    __builtin__.state = state
+    builtins.state = state
     #TEST
-    #State.state_shell()
+    #print(state)
     for app in state.getApplicationList().getApplicationList():
         if app.evtHandlers.get("onOSLaunch", None) != None:
             try:
                 app.evtHandlers.get("onOSLaunch")()
             except:
-                State.error_recovery("App startup task failed to run properly.", "App: " + str(app.name))
+                State.error_recovery("App startup task failed to run properly.", "App: " + str(app.name))             
     state.getApplicationList().getApp("home").activate()
     try:
         State.main()
